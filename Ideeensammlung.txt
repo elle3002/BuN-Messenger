@@ -1,0 +1,16 @@
+Idee: Messenger mit anderen Personen (Nachrichten und Files)
+ggf: Chaträume und Multichat
+
+Kommandos:
+	- add [IP] [Name]: Fügt neuen Chatpartner hinzu und speichert die IP hinter dem Namen
+	- show : Zeigt alle verfügbaren Chatpartner (nur die Namen)
+	- sendMessage [Name] [Message]: sendet String (Message) an Name (IP des Partners)
+	- sendFile [Name] [Filelocation]: sendet ein File an Name (IP des Partners)
+	- help : zeigt alle Optionen
+
+	- Zusatz:
+		- afk: stellt dich auf inaktiv
+		- back: stellt dich wieder aktiv
+		- userAwake [Name]: fragt an ob Name (IP) aktiv ist
+		- automatisches Recieved Protokoll: Zeigt sender an, das Nachricht angekommen ist
+	
