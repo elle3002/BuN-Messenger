@@ -7,12 +7,15 @@ import utils.StreamConnectionFactoryListener;
 import java.io .*;
 
 public class CLISkeleton implements StreamConnectionFactoryListener {
-    private static final String EXAMPLE_COMMAND_1 = "c1";
-    private static final String EXAMPLE_COMMAND_2 = "c2";
-    private static final String EXIT = "exit";
-    private static final String CONNECT = "connect";
+
+    //Unterstütze Kommandos:
+    private static final String ADD = "add";
+    private static final String SHOW = "show";
+    private static final String SENDMASSAGE = "sendMessage";
+    private static final String SENDFILE = "sendFile";
     private static final String OPEN = "open";
-    private static final String CLOSE = "close";
+    private static final String HELP = "help";
+
 
     private static final int DEFAULT_PORT_NUMBER = 3333;
 
@@ -27,7 +30,6 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
 
             userCmd.printUsage();
             userCmd.runCommandLoop();
-
         }
 
     public CLISkeleton(String playerName, int portNumber) throws IOException {
@@ -43,27 +45,23 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
     public void printUsage() {
             StringBuilder b = new StringBuilder();
 
-            b.append("\n");
-            b.append("\n");
             b.append("valid commands:");
             b.append("\n");
-            b.append(CONNECT);
-            b.append(".. connect as tcp client");
+            b.append(ADD);
+            b.append(" [name] [IP]: Fügt neuen Chatpartner hinzu");
             b.append("\n");
             b.append(OPEN);
             b.append(".. open port: accept tcp connection requests");
             b.append("\n");
-            b.append(CLOSE);
-            b.append(".. stop accepting tcp connection requests");
+            b.append(SENDMASSAGE);
+            b.append(" [name] [massage]: Sendet massage an den User mit dem Namen name");
             b.append("\n");
-            b.append(EXAMPLE_COMMAND_1);
-            b.append(".. example command 1");
+            b.append(SENDFILE);
+            b.append(".. [Name] [Filelocation]: sendet ein File an Name (IP des Partners)");
             b.append("\n");
-            b.append(EXAMPLE_COMMAND_2);
-            b.append(".. example command 2");
+            b.append(HELP);
+            b.append(".. get help, show available commands");
             b.append("\n");
-            b.append(EXIT);
-            b.append(".. exit");
 
             System.out.println(b.toString());
         }
@@ -76,48 +74,43 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
                 String cmdLineString = null;
 
                 try {
-                    // read user input
+                    // ließt commandline aus der Console aus
                     cmdLineString = inBufferedReader.readLine();
 
-                    // finish that loop if less than nothing came in
+                    // überprüft ob etwas eingegeben wurde
                     if (cmdLineString == null) break;
 
-                    // trim whitespaces on both sides
+                    // löscht Leerzeichen vorne und hinten
                     cmdLineString = cmdLineString.trim();
 
-                    // extract command
+
+                //Kommando auslesen:
+                    //erhälst die Stelle(index) des ersten Leerzeichens (falls keines vorhanden = -1)
                     int spaceIndex = cmdLineString.indexOf(' ');
+                    //falls nicht horhanden (spaceIndex = -1) wird spaceIndex Maximal gemacht
                     spaceIndex = spaceIndex != -1 ? spaceIndex : cmdLineString.length();
 
-                    // got command string
+                    //Kommando wird ausgelesen (von Anfang bis spaceIndex)
                     String commandString = cmdLineString.substring(0, spaceIndex);
 
-                    // extract parameters string - can be empty
-                    String parameterString = cmdLineString.substring(spaceIndex);
-                    parameterString = parameterString.trim();
-
-                    // start command loop
+                    //weist je nach Kommand eine MessengerLogic Methode zu
                     switch (commandString) {
-                        case CONNECT:
-                            this.doConnect(parameterString);
+                        case ADD:
+                            MessengerLogic.add(this.getParameter(cmdLineString, 2));
                             break;
                         case OPEN:
-                            this.doOpen(parameterString);
+                            this.doOpen();
                             break;
-                        case CLOSE:
-                            this.doClose();
+                        case SENDMASSAGE:
+                            MessengerLogic.sendMessage(this.getParameter(cmdLineString, 2));
                             break;
-                        case EXAMPLE_COMMAND_1:
-                            this.doExample1();
+                        case SENDFILE:
+                            MessengerLogic.sendFile(this.getParameter(cmdLineString, 2));
                             break;
-                        case EXAMPLE_COMMAND_2:
-                            this.doExample2(parameterString);
+                        case HELP:
+                            printUsage();
                             break;
                         case "q": // convenience
-                        case EXIT:
-                            again = false;
-                            System.exit(1);
-                            break; // end loop
 
                         default:
                             System.out.println("unknown command:" + cmdLineString);
@@ -132,9 +125,51 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
                 }
                 catch (YourAppException yex) {
                     System.err.println("app error (try again): " + yex.getLocalizedMessage());
+
+                //Falls die Parameterzahl für den Befehl ungültig war, tritt diese Exeption auf
+                //Bahandelt wird sie mit er kurzen Nachricht und der Befehlübersicht
+                } catch (WrongParameterExeption e) {
+                    System.out.println("Fehler: " + e.getMessage());
+                    this.printUsage();
                 }
             }
         }
+
+    /**
+     * liest aus die restlichen Parameter aus
+     * @param cmdLineString gesamtstring aus der Kommandozeile
+     * @param anzahlParameter anzahl der Parameter die ausgelesen werden müssen
+     * @return String[] mit allen Parametern
+     * @throws WrongParameterExeption wernn ungültige Anzahl von Paramtern angegeben wurden
+     */
+    private String[] getParameter(String cmdLineString, int anzahlParameter) throws WrongParameterExeption{
+        //result Array, das zurück gegeben wird
+        String[] parameter = new String[anzahlParameter];
+
+        //For Schleife die so viele Kommandos ausließt wie angegeben
+        for(int i = 0; i < anzahlParameter; i++){
+            //Löscht den vorherigen Teil (Kommand oder Parameter) heraus
+            int spaceIndex = cmdLineString.indexOf(" ");
+            cmdLineString = cmdLineString.substring(spaceIndex + 1);
+
+            //ließt den nächten Parameter ein
+            if (i < anzahlParameter -1 ) {
+                spaceIndex = cmdLineString.indexOf(' ');
+            }
+            // wenn es der letzte Parameter ist, wird nicht mehr beim Leerzeichen getrennt
+            else {
+                spaceIndex = cmdLineString.length(); // add Elias
+            }
+            //wenn es keine Parameter gibt wirft man Exeption
+            if (spaceIndex < 0) {
+                throw new WrongParameterExeption();
+            }
+            //Parameter werden ausgelesen
+            parameter[i] = cmdLineString.substring(0, spaceIndex);
+        }
+        return parameter;
+    }
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //                                           ui method implementations                                        //
@@ -163,7 +198,7 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
         return this.scFactory;
     }
 
-    public void doOpen(String parameterString) throws YourAppException, IOException {
+    public void doOpen() throws YourAppException, IOException {
         this.getStreamConnectionFactory().acceptConnectionRequests(false);
         // TODO: define a parameter that allows opening multiple connections
     }
