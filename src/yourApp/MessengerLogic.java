@@ -1,5 +1,9 @@
 package yourApp;
 
+import java.io.IOException;
+import java.net.Socket;
+import java.io.OutputStream;
+
 /**
  *
  */
@@ -24,9 +28,15 @@ public class MessengerLogic {
      *              [0] = Name der IP an die die Nachricht gesendet werden soll
      *              [1] = Nachricht die gesendet werden soll
      */
-    public static void sendMessage (String[] parameter) {
-        // TODO: sende parameter[1] an die IP des Namens parameter[0]
+    public static void sendMessage (String[] parameter) throws IOException {
+        // TODO: IP hinter dem Namen erfahren
 
+        // TODO: Verbindung aufbauen
+        /*
+        PDUMessage message = new PDUMessage("myIP", parameter[1]);
+
+        ProtocolEngine.serialisiereMessage(os, message);
+        */
         System.out.println("Ich --> " + parameter[0] + ": " + parameter[1]);
     }
 
@@ -37,8 +47,14 @@ public class MessengerLogic {
      *              [1] = Filepath des Files das gesendet werden soll
      */
     public static void sendFile(String[] parameter) {
-        // TODO: sende das File in parameter[1] an die IP des Namens parameter[0]
+        // TODO: IP hinter dem Namen erfahren
 
+        // TODO: Verbindung aufbauen
+        /*
+        PDUFile file = new PDUFile("myIP", parameter[1]);
+
+        ProtocolEngine.serialisiereFile(os, file);
+        */
         System.out.println("Ich --> " + parameter[0] + ": File: " + parameter[1] + " gesendet");
     }
 

@@ -11,11 +11,12 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
     //Unterstütze Kommandos:
     private static final String ADD = "add";
     private static final String SHOW = "show";
-    private static final String SENDMASSAGE = "sendMessage";
+    private static final String SENDMESSAGE = "sendMessage";
     private static final String SENDFILE = "sendFile";
-    private static final String OPEN = "open";
     private static final String HELP = "help";
 
+    //vorläufig
+    private static final String OPEN = "open";
 
     private static final int DEFAULT_PORT_NUMBER = 3333;
 
@@ -53,8 +54,8 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
             b.append(OPEN);
             b.append(".. open port: accept tcp connection requests");
             b.append("\n");
-            b.append(SENDMASSAGE);
-            b.append(" [name] [massage]: Sendet massage an den User mit dem Namen name");
+            b.append(SENDMESSAGE);
+            b.append(" [name] [message]: Sendet message an den User mit dem Namen name");
             b.append("\n");
             b.append(SENDFILE);
             b.append(".. [Name] [Filelocation]: sendet ein File an Name (IP des Partners)");
@@ -77,7 +78,7 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
                     // ließt commandline aus der Console aus
                     cmdLineString = inBufferedReader.readLine();
 
-                    // überprüft ob etwas eingegeben wurde
+                    // überprüft, ob etwas eingegeben wurde
                     if (cmdLineString == null) break;
 
                     // löscht Leerzeichen vorne und hinten
@@ -101,7 +102,7 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
                         case OPEN:
                             this.doOpen();
                             break;
-                        case SENDMASSAGE:
+                        case SENDMESSAGE:
                             MessengerLogic.sendMessage(this.getParameter(cmdLineString, 2));
                             break;
                         case SENDFILE:
@@ -153,7 +154,7 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
             cmdLineString = cmdLineString.substring(spaceIndex + 1);
 
             //ließt den nächten Parameter ein
-            if (i < anzahlParameter -1 ) {
+            if (i < anzahlParameter -1) {
                 spaceIndex = cmdLineString.indexOf(' ');
             }
             // wenn es der letzte Parameter ist, wird nicht mehr beim Leerzeichen getrennt
@@ -169,6 +170,7 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
         }
         return parameter;
     }
+
 
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
