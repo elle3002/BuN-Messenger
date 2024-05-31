@@ -25,7 +25,7 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
     private final int portNumber;
 
     public static void main(String[] args) throws IOException {
-            System.out.println("Welcome to [YourApp] version 0.1");
+            System.out.println("Welcome to Chat With Friends version 1.0");
 
             CLISkeleton userCmd = new CLISkeleton("TestUser");
 

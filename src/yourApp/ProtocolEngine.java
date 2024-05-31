@@ -26,6 +26,8 @@ public class ProtocolEngine {
 
         //TODO FileOutputStream checken
 
+
+
     }
 
     public static PDUInterface deserialisiere (InputStream is) throws IOException {

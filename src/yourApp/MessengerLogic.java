@@ -9,6 +9,8 @@ import java.io.OutputStream;
  */
 public class MessengerLogic {
 
+    static NameIPLogic nameIPLogic = new NameIPLogic();
+
     /**
      * Diese Methode weist einem Namen eine IP zu
      * Diese werden in IP-Adressen.txt abegelegt
@@ -17,7 +19,12 @@ public class MessengerLogic {
      *              [1] = IP die dem Namen zugewiesen werden soll
      */
     public static void add (String[] parameter) {
-        // TODO: schreibe in name + IP in eine file
+
+        try {
+            nameIPLogic.addNameAndIP(parameter[0], parameter[1]);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         System.out.println("IP: " + parameter[1] + " wurde: " + parameter[0] + " zugewiesen");
     }
@@ -30,6 +37,12 @@ public class MessengerLogic {
      */
     public static void sendMessage (String[] parameter) throws IOException {
         // TODO: IP hinter dem Namen erfahren
+
+        try {
+            System.out.println(nameIPLogic.getIP(parameter[0]));
+        } catch (NoIPBehindThisNameExeption e) {
+            System.out.println(e.getMessage() + " Füge die IP über den add Kommand hinzu!");
+        }
 
         // TODO: Verbindung aufbauen
         /*
@@ -49,6 +62,7 @@ public class MessengerLogic {
     public static void sendFile(String[] parameter) {
         // TODO: IP hinter dem Namen erfahren
 
+        System.out.println(nameIPLogic.getName(parameter[0]));
         // TODO: Verbindung aufbauen
         /*
         PDUFile file = new PDUFile("myIP", parameter[1]);
