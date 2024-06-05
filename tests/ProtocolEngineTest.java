@@ -2,6 +2,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertTrue;
+
+import yourApp.FileManager;
 import yourApp.PDUFile;
 import yourApp.PDUMessage;
 import yourApp.ProtocolEngine;
@@ -30,8 +32,9 @@ public class ProtocolEngineTest {
 
     @Test
     public void testSerialisiereFile() throws IOException {
-        byte[] imageData = "C:\\Users\\elias\\Desktop\\gitRepos\\BuN-Messenger\\PNG.png".getBytes();
-        PDUFile file = new PDUFile("192.168.1.1", "bild.png", imageData);
+        String path = "C:\\Users\\elias\\Desktop\\gitRepos\\BuN-Messenger\\ressources\\10.pdf";
+        byte[] imageData = FileManager.readFile(path);
+        PDUFile file = new PDUFile("192.168.1.2", path, imageData);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ProtocolEngine.serialisiereFile(baos, file);
@@ -41,6 +44,12 @@ public class ProtocolEngineTest {
 
         assertEquals(file.getType(), deserializedFile.getType());
         assertEquals(file.getSenderIP(), deserializedFile.getSenderIP());
-        assertArrayEquals(file.getImageData(), deserializedFile.getImageData());
+        assertArrayEquals(file.getData(), deserializedFile.getData());
     }
+
+    @Test
+    public void testFileManager() {
+        System.out.println(FileManager.extractFileEndung("C:\\Users\\elias\\Desktop\\gitRepos\\BuN-Messenger\\ressources\\2.png"));
+    }
+
 }
