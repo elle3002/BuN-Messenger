@@ -60,6 +60,9 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
             b.append(SENDFILE);
             b.append(".. [Name] [Filelocation]: sendet ein File an Name (IP des Partners)");
             b.append("\n");
+            b.append(SHOW);
+            b.append(" zeigt dir alle eingetragenen Chatpartner)");
+            b.append("\n");
             b.append(HELP);
             b.append(".. get help, show available commands");
             b.append("\n");
@@ -108,6 +111,9 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
                         case SENDFILE:
                             MessengerLogic.sendFile(this.getParameter(cmdLineString, 2));
                             break;
+                        case SHOW:
+                            MessengerLogic.show();
+                            break;
                         case HELP:
                             printUsage();
                             break;
@@ -116,7 +122,6 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
                         default:
                             System.out.println("unknown command:" + cmdLineString);
                             this.printUsage();
-                            rememberCommand = false;
                             break;
                     }
                 }

@@ -1,8 +1,6 @@
 package yourApp;
 
 import java.io.IOException;
-import java.net.Socket;
-import java.io.OutputStream;
 
 /**
  *
@@ -36,21 +34,19 @@ public class MessengerLogic {
      *              [1] = Nachricht die gesendet werden soll
      */
     public static void sendMessage (String[] parameter) throws IOException {
-        // TODO: IP hinter dem Namen erfahren
-
         try {
-            System.out.println(nameIPLogic.getIP(parameter[0]));
+            //IP hinter Name erfahren
+            String sendeAnIP = nameIPLogic.getIP(parameter[0]);
+
+            //PDUMessage erstellen
+            PDUMessage myMessage = new PDUMessage("my IP", parameter[1]);
+
+            // TODO: Verbindung zu sendeAnIP herstellen und myMessage serialisieren!
+
+            System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[1]);
         } catch (NoIPBehindThisNameExeption e) {
-            System.out.println(e.getMessage() + " Füge die IP über den add Kommand hinzu!");
+            System.out.println("Unter diesem Namen ist keine IP gespeichert!");
         }
-
-        // TODO: Verbindung aufbauen
-        /*
-        PDUMessage message = new PDUMessage("myIP", parameter[1]);
-
-        ProtocolEngine.serialisiereMessage(os, message);
-        */
-        System.out.println("Ich --> " + parameter[0] + ": " + parameter[1]);
     }
 
     /**
@@ -60,22 +56,28 @@ public class MessengerLogic {
      *              [1] = Filepath des Files das gesendet werden soll
      */
     public static void sendFile(String[] parameter) {
-        // TODO: IP hinter dem Namen erfahren
+        try {
+            //IP hinter Name erfahren
+            String sendeAnIP = nameIPLogic.getIP(parameter[0]);
 
-        System.out.println(nameIPLogic.getName(parameter[0]));
-        // TODO: Verbindung aufbauen
-        /*
-        PDUFile file = new PDUFile("myIP", parameter[1]);
+            //PDUMessage erstellen
+            byte[] imageData = FileManager.readFile(parameter[1]);
+            PDUFile myFile = new PDUFile("my IP", parameter[1], imageData);
 
-        ProtocolEngine.serialisiereFile(os, file);
-        */
-        System.out.println("Ich --> " + parameter[0] + ": File: " + parameter[1] + " gesendet");
+            // TODO: Verbindung zu sendeAnIP herstellen und myFile serialisieren!
+
+            System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[1]);
+        } catch (NoIPBehindThisNameExeption e) {
+            System.out.println("Unter diesem Namen ist keine IP gespeichert!");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
      * Gibt alle gespeicherten Namen und deren IPs aus
      */
     public static void show () {
-        // TODO: alle Namen und deren IPs ausgeben
+        nameIPLogic.printAllEntrys();
     }
 }

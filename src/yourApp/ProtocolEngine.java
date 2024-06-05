@@ -23,11 +23,9 @@ public class ProtocolEngine {
 
         daos.writeUTF(file.getType());
         daos.writeUTF(file.getSenderIP());
-
-        //TODO FileOutputStream checken
-
-
-
+        daos.writeUTF(file.getFileEndung());
+        daos.writeInt(file.getData().length);
+        daos.write(file.getData());
     }
 
     public static PDUInterface deserialisiere (InputStream is) throws IOException {
@@ -61,9 +59,14 @@ public class ProtocolEngine {
     public static PDUFile deserialisiereFile(DataInputStream dais) throws IOException {
 
         String senderIP = dais.readUTF();
+        String fileEndung = dais.readUTF();
+        int length = dais.readInt();
 
-        //TODO FileInputStream checken
+        byte[] data = new byte[length];
+        dais.readFully(data);
 
-        return new PDUFile(senderIP, "Filepath");
+        String filepath = FileManager.saveFile(senderIP, data, fileEndung);
+
+        return new PDUFile(senderIP, filepath, data);
     }
 }

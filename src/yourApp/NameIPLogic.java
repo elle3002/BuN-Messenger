@@ -72,4 +72,13 @@ public class NameIPLogic {
         return IPList;
     }
 
+    public void printAllEntrys() {
+        if (IPList.size() == 0) {
+            System.out.println("Es gibt noch keine Einträge!");
+        } else {
+            for (Map.Entry<String, String> entry : IPList.entrySet()) {
+                System.out.println("Name: " + entry.getValue() + ", IP: " + entry.getKey());
+            }
+        }
+    }
 }
