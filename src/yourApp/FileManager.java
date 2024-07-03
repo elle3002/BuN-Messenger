@@ -41,9 +41,7 @@ public class FileManager {
 
         return filePath;
     }
-
      */
-
 
     public static byte[] readFile(String path) throws IOException {
         String kindOfFile = extractFileEndung(path);
@@ -88,6 +86,8 @@ public class FileManager {
 
     public static String saveFile(String IP, byte[] data, String fileEndung) throws IOException {
         String directoryPath = "ressources/" + IP;
+
+
         File directory = new File(directoryPath);
         if (!directory.exists()) {
             directory.mkdirs();

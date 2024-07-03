@@ -1,12 +1,8 @@
 package yourApp;
 
-import streamProtocols.ourProtocolExample;
-import utils.StreamConnectionFactory;
-import utils.StreamConnectionFactoryListener;
-
 import java.io .*;
 
-public class CLISkeleton implements StreamConnectionFactoryListener {
+public class CLISkeleton {
 
     //Unterstütze Kommandos:
     private static final String ADD = "add";
@@ -14,11 +10,11 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
     private static final String SENDMESSAGE = "sendMessage";
     private static final String SENDFILE = "sendFile";
     private static final String HELP = "help";
+    private static final String MYIP = "myIP";
 
-    //vorläufig
-    private static final String OPEN = "open";
 
     private static final int DEFAULT_PORT_NUMBER = 3333;
+    private static int ownPortNumber;
 
     private final BufferedReader inBufferedReader;
     private final String playerName;
@@ -27,7 +23,25 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
     public static void main(String[] args) throws IOException {
             System.out.println("Welcome to Chat With Friends version 1.0");
 
-            CLISkeleton userCmd = new CLISkeleton("TestUser");
+            if (args.length > 0) {
+                try {
+                    // Versuch, das Argument in einen int umzuwandeln
+                    ownPortNumber = Integer.parseInt(args[0]);
+                } catch (NumberFormatException e) {
+                    // Wenn das Argument kein gültiger int ist, Standardwert verwenden
+                    System.out.println("Das Argument ist keine gültige Ganzzahl. Standardwert wird verwendet.");
+                    ownPortNumber = DEFAULT_PORT_NUMBER;
+                }
+            } else {
+                // Kein Argument übergeben, also Standardwert verwenden
+                ownPortNumber = DEFAULT_PORT_NUMBER;
+            }
+
+            CommunicationManager cm = new CommunicationManager(ownPortNumber);
+            Thread t = new Thread(cm);
+            t.start();
+
+            CLISkeleton userCmd = new CLISkeleton("TestUser", ownPortNumber);
 
             userCmd.printUsage();
             userCmd.runCommandLoop();
@@ -39,9 +53,6 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
         this.inBufferedReader = new BufferedReader(new InputStreamReader(System.in));
     }
 
-    public CLISkeleton(String playerName) throws IOException {
-        this(playerName, DEFAULT_PORT_NUMBER);
-    }
 
     public void printUsage() {
             StringBuilder b = new StringBuilder();
@@ -51,17 +62,17 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
             b.append(ADD);
             b.append(" [name] [IP]: Fügt neuen Chatpartner hinzu");
             b.append("\n");
-            b.append(OPEN);
-            b.append(".. open port: accept tcp connection requests");
-            b.append("\n");
             b.append(SENDMESSAGE);
-            b.append(" [name] [message]: Sendet message an den User mit dem Namen name");
+            b.append(" [name] [port] [message]: Sendet message an den User mit dem Namen name");
             b.append("\n");
             b.append(SENDFILE);
-            b.append(".. [Name] [Filelocation]: sendet ein File an Name (IP des Partners)");
+            b.append(".. [Name] [port] [Filelocation]: sendet ein File an Name (IP des Partners)");
             b.append("\n");
             b.append(SHOW);
             b.append(" zeigt dir alle eingetragenen Chatpartner)");
+            b.append("\n");
+            b.append(MYIP);
+            b.append(" zeigt dir deine IP an)");
             b.append("\n");
             b.append(HELP);
             b.append(".. get help, show available commands");
@@ -102,17 +113,17 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
                         case ADD:
                             MessengerLogic.add(this.getParameter(cmdLineString, 2));
                             break;
-                        case OPEN:
-                            this.doOpen();
-                            break;
                         case SENDMESSAGE:
-                            MessengerLogic.sendMessage(this.getParameter(cmdLineString, 2));
+                            MessengerLogic.sendMessage(this.getParameter(cmdLineString, 3));
                             break;
                         case SENDFILE:
-                            MessengerLogic.sendFile(this.getParameter(cmdLineString, 2));
+                            MessengerLogic.sendFile(this.getParameter(cmdLineString, 3));
                             break;
                         case SHOW:
                             MessengerLogic.show();
+                            break;
+                        case MYIP:
+                            System.out.println("Meine lokale IP-Adresse ist, schicke diese an deinem Chatpartner: " +  MessengerLogic.printMyIP());
                             break;
                         case HELP:
                             printUsage();
@@ -128,9 +139,6 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
                 catch (IOException ex) {
                     System.err.println("io error (fatal, give up): " + ex.getLocalizedMessage());
                     again = false;
-                }
-                catch (YourAppException yex) {
-                    System.err.println("app error (try again): " + yex.getLocalizedMessage());
 
                 //Falls die Parameterzahl für den Befehl ungültig war, tritt diese Exeption auf
                 //Bahandelt wird sie mit er kurzen Nachricht und der Befehlübersicht
@@ -174,63 +182,5 @@ public class CLISkeleton implements StreamConnectionFactoryListener {
             parameter[i] = cmdLineString.substring(0, spaceIndex);
         }
         return parameter;
-    }
-
-
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                           ui method implementations                                        //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private void doExample1() {
-        System.out.println("example 1 command called - no parameter expected");
-    }
-
-    private void doExample2(String parameterString) {
-        System.out.println("example 2 command called with parameterString \"" + parameterString + "\"");
-    }
-
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    //                                           connection handling                                              //
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-    private StreamConnectionFactory scFactory = null;
-
-    private StreamConnectionFactory getStreamConnectionFactory() throws IOException {
-        if(this.scFactory == null) {
-            this.scFactory = new StreamConnectionFactory(this.portNumber);
-            this.scFactory.addConnectionListener(this);
-        }
-
-        return this.scFactory;
-    }
-
-    public void doOpen() throws YourAppException, IOException {
-        this.getStreamConnectionFactory().acceptConnectionRequests(false);
-        // TODO: define a parameter that allows opening multiple connections
-    }
-
-    private void doClose() throws IOException {
-        this.getStreamConnectionFactory().stopAcceptingConnectionRequests();
-    }
-
-    private void doConnect(String parameterString) throws YourAppException, IOException {
-        String remoteHost = "localhost";
-        int waitSecondsRetry = 5;
-        int numberOfAttempts = 10;
-        System.out.println("try to connect to " + remoteHost
-                + " | try " + numberOfAttempts
-                + " | wait " + waitSecondsRetry + " seconds");
-        this.getStreamConnectionFactory().connect(remoteHost, waitSecondsRetry, numberOfAttempts);
-        // TODO let hostname become a parameter of that method to and maybe connection attempts.
-    }
-
-    @Override
-    public void connectionCreated(InputStream is, OutputStream os, boolean thisSideAcceptedConnection,
-                                  String otherNodeAddress) throws IOException {
-        System.out.println("connection created to/from " + otherNodeAddress);
-
-        System.out.println("run example protocol " + otherNodeAddress);
-        new ourProtocolExample().runProtocol(is, os, thisSideAcceptedConnection);
     }
 }
