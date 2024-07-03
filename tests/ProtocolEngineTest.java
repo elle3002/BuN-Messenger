@@ -32,7 +32,7 @@ public class ProtocolEngineTest {
 
     @Test
     public void testSerialisiereFile() throws IOException {
-        String path = "C:\\Users\\elias\\Desktop\\gitRepos\\BuN-Messenger\\ressources\\10.pdf";
+        String path = ".\\ressources\\10.pdf";
         byte[] imageData = FileManager.readFile(path);
         PDUFile file = new PDUFile("192.168.1.2", path, imageData);
 

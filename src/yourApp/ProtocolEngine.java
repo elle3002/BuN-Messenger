@@ -15,6 +15,7 @@ public class ProtocolEngine {
         daos.writeUTF(message.getType());
         daos.writeUTF(message.getSenderIP());
         daos.writeUTF(message.getMessage());
+        daos.flush();
     }
 
     public static void serialisiereFile(OutputStream os, PDUFile file) throws IOException {
@@ -26,16 +27,17 @@ public class ProtocolEngine {
         daos.writeUTF(file.getFileEndung());
         daos.writeInt(file.getData().length);
         daos.write(file.getData());
+        daos.flush();
     }
 
     public static PDUInterface deserialisiere (InputStream is) throws IOException {
-
         DataInputStream dais = new DataInputStream(is);
 
+        //Auslesen des Typs
         String type = dais.readUTF();
 
+        //deserialisiere je nach Typ
         PDUInterface result;
-
         switch (type) {
             case "Message": result = deserialisiereMessage(dais);
                             break;

@@ -1,13 +1,28 @@
 package yourApp;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.URL;
+import java.net.UnknownHostException;
 
 /**
  *
  */
 public class MessengerLogic {
+    private static final NameIPLogic nameIPLogic = new NameIPLogic();
+    private static String myIP = "unknown";
 
-    static NameIPLogic nameIPLogic = new NameIPLogic();
+    static {
+        try {
+            myIP = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            System.out.println("Deine IP-Adresse kann nicht ermittelt werden!");
+        }
+    }
 
     /**
      * Diese Methode weist einem Namen eine IP zu
@@ -16,13 +31,9 @@ public class MessengerLogic {
      *              [0] = Name der hinzugefügt werden soll
      *              [1] = IP die dem Namen zugewiesen werden soll
      */
-    public static void add (String[] parameter) {
+    public static void add (String[] parameter) throws IOException {
 
-        try {
-            nameIPLogic.addNameAndIP(parameter[0], parameter[1]);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        nameIPLogic.addNameAndIP(parameter[0], parameter[1]);
 
         System.out.println("IP: " + parameter[1] + " wurde: " + parameter[0] + " zugewiesen");
     }
@@ -39,13 +50,21 @@ public class MessengerLogic {
             String sendeAnIP = nameIPLogic.getIP(parameter[0]);
 
             //PDUMessage erstellen
-            PDUMessage myMessage = new PDUMessage("my IP", parameter[1]);
+            PDUMessage myMessage = new PDUMessage(myIP, parameter[1]);
 
-            // TODO: Verbindung zu sendeAnIP herstellen und myMessage serialisieren!
+            //Verbindung zu sendeAnIP herstellen und myMessage serialisieren!
 
-            System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[1]);
+            OutputStream os = CommunicationManager.connectToSendData(sendeAnIP);
+            ProtocolEngine.serialisiereMessage(os, myMessage);
+            os.close();
+
+            //Auf die Konsole ausgeben
+            ConsoleManager.printSendMessageNotification(parameter);
+
         } catch (NoIPBehindThisNameExeption e) {
             System.out.println("Unter diesem Namen ist keine IP gespeichert!");
+        } catch (IOException e) {
+            System.out.println("Es ist ein Fehler aufgetreten, es ist wahrscheinlich, das die Nachricht nicht angekommen ist!");
         }
     }
 
@@ -62,15 +81,20 @@ public class MessengerLogic {
 
             //PDUMessage erstellen
             byte[] imageData = FileManager.readFile(parameter[1]);
-            PDUFile myFile = new PDUFile("my IP", parameter[1], imageData);
+            PDUFile myFile = new PDUFile(myIP, parameter[1], imageData);
 
-            // TODO: Verbindung zu sendeAnIP herstellen und myFile serialisieren!
+            //Verbindung zu sendeAnIP herstellen und myFile serialisieren!
+            OutputStream os = CommunicationManager.connectToSendData(sendeAnIP);
+            ProtocolEngine.serialisiereFile(os, myFile);
+            os.close();
 
-            System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[1]);
+            //Auf die Console ausgeben
+            ConsoleManager.printSendFileNotification(parameter);
+
         } catch (NoIPBehindThisNameExeption e) {
             System.out.println("Unter diesem Namen ist keine IP gespeichert!");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println("Es ist ein Fehler aufgetreten, es ist wahrscheinlich, das die Nachricht nicht angekommen ist!");
         }
     }
 
@@ -79,5 +103,19 @@ public class MessengerLogic {
      */
     public static void show () {
         nameIPLogic.printAllEntrys();
+    }
+
+    public static NameIPLogic getMyNameIPLogic() {
+        return nameIPLogic;
+    }
+
+    public static void printMyIP() { // getLocalIpAdress
+        System.out.println(myIP);
+        try (Socket socket = new Socket("google.com", 80)) {
+            String myLocalIPsocket = socket.getLocalAddress().getHostAddress();
+            System.out.println("Meine öffentliche IP-Adresse ist: " + myLocalIPsocket);
+        } catch (IOException e) {
+            System.out.println("Die öffentliche IP-Adresse kann nicht ermittelt werden: " + e.getMessage());
+        }
     }
 }

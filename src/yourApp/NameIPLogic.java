@@ -7,20 +7,14 @@ import java.util.Map;
 public class NameIPLogic {
 
     private Map<String,String> IPList = new HashMap<>();
+    private static String FILENAME = "/home/goosey/Downloads/BuN-Messenger(Lokal)/ressources/IPData.txt";
 
-
-    private static String FILENAME = "IPData.txt";
+    public NameIPLogic () {
+        this.getNameAndIPFromFile();
+    }
 
     public String getIP(String name) throws NoIPBehindThisNameExeption {
         String IP = null;
-
-        try {
-           IPList = getNameAndIPFromFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
 
         if (IPList.containsValue(name)) {
             IP = findKeyByValue(IPList, name);
@@ -41,35 +35,34 @@ public class NameIPLogic {
     }
 
     public String getName(String IP) {
-        String name = null;
-
-        try {
-            IPList = getNameAndIPFromFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
+        String name;
 
         if(IPList.containsKey(IP)) {
             name = IPList.get(IP);
         } else {
-            name = "Fehler!";
+            name = IP;
         }
         return name;
     }
 
     public void addNameAndIP(String name, String IP) throws IOException {
         IPList.put(IP, name);
-
-        ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(FILENAME));
-        outputStream.writeObject(IPList);
+        this.saveIPList();
     }
 
-    private Map<String, String> getNameAndIPFromFile() throws IOException, ClassNotFoundException {
-        IPList = (HashMap<String, String>) new ObjectInputStream(new FileInputStream(FILENAME)).readObject();
+    private void getNameAndIPFromFile() {
+        try {
+            File file = new File(FILENAME);
 
-        return IPList;
+            // Falls die Datei nicht existiert, gib null zurück
+            if (!file.exists()) {
+                this.IPList = new HashMap<>();
+            } else {
+                this.IPList = (HashMap<String, String>) new ObjectInputStream(new FileInputStream(file)).readObject();
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Fehler beim Lesen der IP-Daten: " + e.getMessage());
+        }
     }
 
     public void printAllEntrys() {
@@ -81,4 +74,22 @@ public class NameIPLogic {
             }
         }
     }
+
+    public synchronized void saveIPList() {
+        try {
+            File file = new File(FILENAME);
+
+            // Falls die Datei nicht existiert, erstelle sie
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+
+            try (ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file))) {
+                outputStream.writeObject(IPList);
+            }
+        } catch (IOException e) {
+            System.out.println("Fehler beim Speichern der IP-Daten: " + e.getMessage());
+        }
+    }
+
 }
