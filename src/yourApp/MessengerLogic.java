@@ -4,10 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.*;
+import java.util.Enumeration;
 import java.net.InetAddress;
-import java.net.Socket;
-import java.net.URL;
-import java.net.UnknownHostException;
+import java.net.NetworkInterface;
 
 /**
  *
@@ -110,10 +110,28 @@ public class MessengerLogic {
     }
 
     public static void printMyIP() { // getLocalIpAdress
-        System.out.println(myIP);
-        try (Socket socket = new Socket("google.com", 80)) {
-            String myLocalIPsocket = socket.getLocalAddress().getHostAddress();
-            System.out.println("Meine öffentliche IP-Adresse ist: " + myLocalIPsocket);
+        System.out.println("Meine aktuelle IP-Adresse ist: " + myIP);
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces(); // ruft alle Netzwerkschnitstellen auf
+            while(interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement(); // durchläuft alle Schnitstellen und speichert diese
+                Enumeration<InetAddress> addresses = networkInterface.getInetAddresses(); // gibt alle IP-Adr. von den Schnitst. in eine Enum. aller Objekte
+                while(addresses.hasMoreElements()) {
+                    InetAddress inetAddress = addresses.nextElement(); // durchläuft die jede IP-Adr.
+                    // Filtert loopback und non-site Adressen raus
+                    if (!inetAddress.isLoopbackAddress() && inetAddress.isSiteLocalAddress()) {
+                        // für Linux-OS
+                        if (networkInterface.getName().equals("wlp2s0")) {
+                            System.out.println("Meine lokale IP-Adresse ist, schicke diese an deinem Chatpartner: " + inetAddress.getHostAddress());
+                            return;
+                        }
+                    } else if (!inetAddress.isLoopbackAddress() && inetAddress.isSiteLocalAddress()){ // für Windows-OS
+                        System.out.println("Meine locale IP-Adresse ist, schicke diese an deinem Chatpartner:: " + inetAddress.getHostAddress());
+                        return; // kehre zurück nachdem IP-Adresse gefunden wurde
+                    }
+                }
+            }
+
         } catch (IOException e) {
             System.out.println("Die öffentliche IP-Adresse kann nicht ermittelt werden: " + e.getMessage());
         }
