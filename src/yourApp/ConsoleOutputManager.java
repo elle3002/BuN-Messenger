@@ -1,9 +1,8 @@
 package yourApp;
 
-import java.sql.Time;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+
 
 public class ConsoleOutputManager {
 
@@ -15,7 +14,9 @@ public class ConsoleOutputManager {
         String formattedTime = arrivalTime.format(formatter);
 
         switch (received.getType()) {
+
             case "File":
+
                 PDUFile receivedFile = (PDUFile) received;
                 StringBuilder outputString = new StringBuilder();
                 outputString.append(formattedTime)
@@ -25,12 +26,14 @@ public class ConsoleOutputManager {
                         .append(receivedFile.getFilePath());
                 System.out.println(outputString);
                 break;
+
             case "Message":
+
                 PDUMessage receivedMessage = (PDUMessage) received;
                 StringBuilder outputMessage = new StringBuilder();
                 outputMessage.append(formattedTime)
                         .append(": Message von: ")
-                        .append(receivedMessage.getSenderIP())
+                        .append(receivedMessage.getName())
                         .append(": ")
                         .append(receivedMessage.getMessage());
                 System.out.println(outputMessage);

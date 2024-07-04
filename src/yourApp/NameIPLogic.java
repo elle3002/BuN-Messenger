@@ -8,10 +8,10 @@ public class NameIPLogic {
 
         private Map<String,String> IPList = new HashMap<>();
 
-
-    private static String FILENAME = "ressources/IPData.txt";
+        private static String FILENAME = "ressources/IPData.txt";
 
     public String getIP(String name) throws NoIPBehindThisNameExeption {
+
         String IP = null;
 
         try {

@@ -4,7 +4,7 @@ import java.io .*;
 
 public class CLISkeleton {
 
-    //Unterstütze Kommandos:
+    //Unterstützte Kommandos:
     private static final String ADD = "add";
     private static final String SHOW = "show";
     private static final String SENDMESSAGE = "sendMessage";
@@ -13,11 +13,11 @@ public class CLISkeleton {
     private static final String MYIP = "myIP";
 
     private static final int DEFAULT_PORT_NUMBER = 3333;
-    private static int ownPortNumber;
+    private static int ownPortNumber;//Client Port
 
     private final BufferedReader inBufferedReader;
     private final String playerName;
-    private final int portNumber;
+    private final int portNumber;//Server Port
 
     public static void main(String[] args) throws IOException {
             System.out.println("Welcome to Chat With Friends");

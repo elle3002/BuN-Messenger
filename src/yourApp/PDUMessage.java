@@ -3,6 +3,7 @@ package yourApp;
 public class PDUMessage implements PDUInterface {
     private String TYPE = "Message";
     private String senderIP;
+    private String name;
     private String message;
 
     public PDUMessage (String ip, String message) {
@@ -20,6 +21,8 @@ public class PDUMessage implements PDUInterface {
     public String getSenderIP() {
         return senderIP;
     }
+
+    public String getName(){ return name;}
 
     public String getMessage() {
         return this.message;

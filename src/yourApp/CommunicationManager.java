@@ -7,7 +7,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class CommunicationManager implements Runnable {
-    private int portnumber;
+
+        private int portnumber;
 
     public CommunicationManager(int portnumber) {
         this.portnumber = portnumber;
@@ -17,32 +18,34 @@ public class CommunicationManager implements Runnable {
     public void run() {
 
         try {
-            //open ServerSocket
+            //öffnet ServerSocket auf der angegebenen Portnummer und wartet auf Verbindung
             System.out.println("Horche...Warte auf Client");
-            ServerSocket serverSocket = new ServerSocket(portnumber);
+            ServerSocket serverSocket = new ServerSocket(portnumber);//Server-Seite
             System.out.println("Server auf Port:" + portnumber);
             Socket s;
 
-            s = serverSocket.accept();
-
+            s = serverSocket.accept();//Verbindung wird akzeptiert
             System.out.println("Verbindung aufgebaut");
 
-            //Datenlesen und deserialisieren
+            //Daten lesen aus Bytes und Deserialisieren
             InputStream is = s.getInputStream();
             PDUInterface received = ProtocolEngine.deserialisiere(is);
 
             //Ausgeben auf der Konsole
             ConsoleOutputManager.printReceivedData(received);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public static OutputStream connectToServer(String sendeAnIP, int portNumber) throws IOException {
+        //Schreiben von Daten in Bytes
 
-        //Socket eröffnen und Outputstream zurückgeben
-        Socket s = new Socket(sendeAnIP, portNumber);
+        //neuer Socket wird geöffnet und Outputstream zurückgegeben
+        Socket s = new Socket(sendeAnIP, portNumber);//Client-Seite
         OutputStream os = s.getOutputStream();
+
         return os;
     }
 }

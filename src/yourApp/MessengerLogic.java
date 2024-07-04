@@ -50,6 +50,8 @@ public class MessengerLogic {
         try {
             // IP hinter Name erfahren
             String sendeAnIP = nameIPLogic.getIP(parameter[0]);
+            //Name hinter IP erfahren
+            String name = nameIPLogic.getName(parameter[1]);
 
             // Portnummer
             int portnumber = Integer.parseInt(parameter[1]);
@@ -64,6 +66,7 @@ public class MessengerLogic {
             outputStream.close();
 
             System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[1]);
+
         } catch (NoIPBehindThisNameExeption e) {
             System.out.println("Unter diesem Namen ist keine IP gespeichert!");
         }
