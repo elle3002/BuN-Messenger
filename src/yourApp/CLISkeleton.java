@@ -12,7 +12,6 @@ public class CLISkeleton {
     private static final String HELP = "help";
     private static final String MYIP = "myIP";
 
-
     private static final int DEFAULT_PORT_NUMBER = 3333;
     private static int ownPortNumber;
 
@@ -21,7 +20,7 @@ public class CLISkeleton {
     private final int portNumber;
 
     public static void main(String[] args) throws IOException {
-            System.out.println("Welcome to Chat With Friends version 1.0");
+            System.out.println("Welcome to Chat With Friends");
 
             if (args.length > 0) {
                 try {
@@ -123,13 +122,11 @@ public class CLISkeleton {
                             MessengerLogic.show();
                             break;
                         case MYIP:
-                            System.out.println("Meine lokale IP-Adresse ist, schicke diese an deinem Chatpartner: " +  MessengerLogic.printMyIP());
+                            System.out.println("Meine lokale IP-Adresse ist: " +  MessengerLogic.printMyIP());
                             break;
                         case HELP:
                             printUsage();
                             break;
-                        case "q": // convenience
-
                         default:
                             System.out.println("unknown command:" + cmdLineString);
                             this.printUsage();

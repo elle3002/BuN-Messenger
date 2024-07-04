@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class NameIPLogic {
 
-    private Map<String,String> IPList = new HashMap<>();
+        private Map<String,String> IPList = new HashMap<>();
 
 
     private static String FILENAME = "ressources/IPData.txt";

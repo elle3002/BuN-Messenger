@@ -1,21 +1,18 @@
 package yourApp;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-/**
- *
- */
+
 public class MessengerLogic {
 
-    static NameIPLogic nameIPLogic = new NameIPLogic();
+        static NameIPLogic nameIPLogic = new NameIPLogic();
 
-    private static String myIP = "unknown";
+        private static String myIP = "unknown";
 
     static {
         try {
@@ -86,9 +83,9 @@ public class MessengerLogic {
             //Portnummer
             int portnumber = Integer.parseInt(parameter[1]);
 
-            //PDUMessage erstellen
-            byte[] imageData = FileManager.readFile(parameter[1]);
-            PDUFile myFile = new PDUFile("my IP", parameter[1], imageData);
+            //PDUFile erstellen
+            byte[] imageData = FileManager.readFile(parameter[2]);
+            PDUFile myFile = new PDUFile("my IP", parameter[2], imageData);
 
             //Verbindung zu sendeAnIP herstellen und myFile serialisieren!
             OutputStream os = CommunicationManager.connectToServer(sendeAnIP, portnumber);
@@ -97,7 +94,7 @@ public class MessengerLogic {
             os.close();
 
             //Textausgabe
-            System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[1]);
+            System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[2]);
         } catch (NoIPBehindThisNameExeption e) {
             System.out.println("Unter diesem Namen ist keine IP gespeichert!");
         } catch (IOException e) {
@@ -113,7 +110,7 @@ public class MessengerLogic {
     }
 
 
-    public static String printMyIP() { // getLocalIpAdress
+    public static String printMyIP() { // getLocalIpAddress
         try {
 
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces(); // ruft alle Netzwerkschnitstellen auf
@@ -136,7 +133,7 @@ public class MessengerLogic {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Die öffentliche IP-Adresse kann nicht ermittelt werden: " + e.getMessage());
+            System.out.println("Die öffentliche IP-Addresse kann nicht ermittelt werden: " + e.getMessage());
         }
         return myIP;
     }

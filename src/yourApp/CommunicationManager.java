@@ -3,7 +3,6 @@ package yourApp;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -22,7 +21,7 @@ public class CommunicationManager implements Runnable {
             System.out.println("Horche...Warte auf Client");
             ServerSocket serverSocket = new ServerSocket(portnumber);
             System.out.println("Server auf Port:" + portnumber);
-            Socket s = null;
+            Socket s;
 
             s = serverSocket.accept();
 
