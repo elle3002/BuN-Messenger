@@ -4,30 +4,51 @@ import java.io .*;
 
 public class CLISkeleton {
 
-    //Unterstütze Kommandos:
+    //Unterstützte Kommandos:
     private static final String ADD = "add";
     private static final String SHOW = "show";
     private static final String SENDMESSAGE = "sendMessage";
     private static final String SENDFILE = "sendFile";
-    private static final String QUIT = "quit";
     private static final String HELP = "help";
     private static final String MYIP = "myIP";
 
-    private final BufferedReader inBufferedReader;
+    private static final int DEFAULT_PORT_NUMBER = 3333;
+    private static int ownPortNumber;//Client Port
 
+    private final BufferedReader inBufferedReader;
+    private final String playerName;
+    private final int portNumber;//Server Port
 
     public static void main(String[] args) throws IOException {
-            CLISkeleton userCmd = new CLISkeleton();
+            System.out.println("Welcome to Chat With Friends");
 
-            CommunicationManager communicationManager = new CommunicationManager();
-            Thread thread = new Thread(communicationManager);
-            thread.start();
+            if (args.length > 0) {
+                try {
+                    // Versuch, das Argument in einen int umzuwandeln
+                    ownPortNumber = Integer.parseInt(args[0]);
+                } catch (NumberFormatException e) {
+                    // Wenn das Argument kein gültiger int ist, Standardwert verwenden
+                    System.out.println("Das Argument ist keine gültige Ganzzahl. Standardwert wird verwendet.");
+                    ownPortNumber = DEFAULT_PORT_NUMBER;
+                }
+            } else {
+                // Kein Argument übergeben, also Standardwert verwenden
+                ownPortNumber = DEFAULT_PORT_NUMBER;
+            }
+
+            CommunicationManager cm = new CommunicationManager(ownPortNumber);
+            Thread t = new Thread(cm);
+            t.start();
+
+            CLISkeleton userCmd = new CLISkeleton("TestUser", ownPortNumber);
 
             userCmd.printUsage();
             userCmd.runCommandLoop();
         }
 
-    public CLISkeleton() throws IOException {
+    public CLISkeleton(String playerName, int portNumber) throws IOException {
+        this.playerName = playerName;
+        this.portNumber = portNumber;
         this.inBufferedReader = new BufferedReader(new InputStreamReader(System.in));
     }
 
@@ -41,22 +62,19 @@ public class CLISkeleton {
             b.append(" [name] [IP]: Fügt neuen Chatpartner hinzu");
             b.append("\n");
             b.append(SENDMESSAGE);
-            b.append(" [name] [message]: Sendet message an den User mit dem name");
+            b.append(" [name] [port] [message]: Sendet message an den User mit dem Namen name");
             b.append("\n");
             b.append(SENDFILE);
-            b.append(" [Name] [Filelocation]: Sendet ein File an Name (Akzeptierte Formate sind: .pdf .jpg .jpeg .png)");
+            b.append(".. [Name] [port] [Filelocation]: sendet ein File an Name (IP des Partners)");
             b.append("\n");
             b.append(SHOW);
-            b.append(" : Zeigt dir alle eingetragenen Chatpartner");
+            b.append(" zeigt dir alle eingetragenen Chatpartner)");
             b.append("\n");
             b.append(MYIP);
-            b.append(" : Gibt dir deine Eigene IP aus!");
+            b.append(" zeigt dir deine IP an)");
             b.append("\n");
             b.append(HELP);
-            b.append(" : Listet dir alle validen Kommandos auf und wie sie benutzt werden!");
-            b.append("\n");
-            b.append(QUIT);
-            b.append(" : Beendet das Programm");
+            b.append(".. get help, show available commands");
             b.append("\n");
 
             System.out.println(b.toString());
@@ -95,22 +113,19 @@ public class CLISkeleton {
                             MessengerLogic.add(this.getParameter(cmdLineString, 2));
                             break;
                         case SENDMESSAGE:
-                            MessengerLogic.sendMessage(this.getParameter(cmdLineString, 2));
+                            MessengerLogic.sendMessage(this.getParameter(cmdLineString, 3));
                             break;
                         case SENDFILE:
-                            MessengerLogic.sendFile(this.getParameter(cmdLineString, 2));
+                            MessengerLogic.sendFile(this.getParameter(cmdLineString, 3));
                             break;
                         case SHOW:
                             MessengerLogic.show();
                             break;
                         case MYIP:
-                            MessengerLogic.printMyIP();
+                            System.out.println("Meine lokale IP-Adresse ist: " +  MessengerLogic.printMyIP());
                             break;
                         case HELP:
                             printUsage();
-                            break;
-                        case QUIT:
-                            System.exit(0);
                             break;
                         default:
                             System.out.println("unknown command:" + cmdLineString);
@@ -121,6 +136,9 @@ public class CLISkeleton {
                 catch (IOException ex) {
                     System.err.println("io error (fatal, give up): " + ex.getLocalizedMessage());
                     again = false;
+
+                //Falls die Parameterzahl für den Befehl ungültig war, tritt diese Exeption auf
+                //Bahandelt wird sie mit er kurzen Nachricht und der Befehlübersicht
                 } catch (WrongParameterExeption e) {
                     System.out.println("Fehler: " + e.getMessage());
                     this.printUsage();

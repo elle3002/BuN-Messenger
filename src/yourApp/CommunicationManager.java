@@ -1,36 +1,51 @@
 package yourApp;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class CommunicationManager implements Runnable {
-    private static final int DEFAULTPORT = 3333;
-    private static ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
+        private int portnumber;
 
-    public static OutputStream connectToSendData(String sendeAnIP) throws IOException {
-
-        Socket connectToServer = new Socket(sendeAnIP, DEFAULTPORT);
-
-        return connectToServer.getOutputStream();
+    public CommunicationManager(int portnumber) {
+        this.portnumber = portnumber;
     }
 
     @Override
     public void run() {
+
         try {
-            ServerSocket myServerSocket = new ServerSocket(DEFAULTPORT);
+            //öffnet ServerSocket auf der angegebenen Portnummer und wartet auf Verbindung
+            System.out.println("Horche...Warte auf Client");
+            ServerSocket serverSocket = new ServerSocket(portnumber);//Server-Seite
+            System.out.println("Server auf Port:" + portnumber);
+            Socket s;
 
-            while (!myServerSocket.isClosed()) {
-                Socket clientSocket = myServerSocket.accept();
+            s = serverSocket.accept();//Verbindung wird akzeptiert
+            System.out.println("Verbindung aufgebaut");
 
-                threadPool.submit(new Communication(clientSocket));
-            }
+            //Daten lesen aus Bytes und Deserialisieren
+            InputStream is = s.getInputStream();
+            PDUInterface received = ProtocolEngine.deserialisiere(is);
+
+            //Ausgeben auf der Konsole
+            ConsoleOutputManager.printReceivedData(received);
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static OutputStream connectToServer(String sendeAnIP, int portNumber) throws IOException {
+        //Schreiben von Daten in Bytes
+
+        //neuer Socket wird geöffnet und Outputstream zurückgegeben
+        Socket s = new Socket(sendeAnIP, portNumber);//Client-Seite
+        OutputStream os = s.getOutputStream();
+
+        return os;
     }
 }

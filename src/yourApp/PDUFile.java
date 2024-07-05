@@ -31,6 +31,7 @@ public class PDUFile implements PDUInterface, Serializable {
         return this.senderIP;
     }
 
+
     public String getFilePath() {
         return this.filePath;
     }
