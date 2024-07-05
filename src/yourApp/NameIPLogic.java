@@ -66,7 +66,8 @@ public class NameIPLogic {
         outputStream.writeObject(IPList);
     }
 
-    private Map<String, String> getNameAndIPFromFile() throws IOException, ClassNotFoundException {
+    public static Map<String, String> getNameAndIPFromFile() throws IOException, ClassNotFoundException {
+        Map<String,String> IPList = new HashMap<>();
         IPList = (HashMap<String, String>) new ObjectInputStream(new FileInputStream(FILENAME)).readObject();
 
         return IPList;
