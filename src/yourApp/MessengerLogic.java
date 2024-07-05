@@ -86,7 +86,7 @@ public class MessengerLogic {
 
             //PDUFile erstellen
             byte[] imageData = FileManager.readFile(parameter[2]);
-            PDUFile myFile = new PDUFile("my IP", parameter[2], imageData);
+            PDUFile myFile = new PDUFile(printMyIP(), parameter[2], imageData);
 
             //Verbindung zu sendeAnIP herstellen und myFile serialisieren!
             OutputStream os = CommunicationManager.connectToServer(sendeAnIP, portnumber);

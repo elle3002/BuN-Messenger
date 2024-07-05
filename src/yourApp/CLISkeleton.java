@@ -9,6 +9,7 @@ public class CLISkeleton {
     private static final String SHOW = "show";
     private static final String SENDMESSAGE = "sendMessage";
     private static final String SENDFILE = "sendFile";
+
     private static final String HELP = "help";
     private static final String MYIP = "myIP";
 

@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 public class FileManager {
 
@@ -85,37 +86,51 @@ public class FileManager {
 
 
     public static String saveFile(String IP, byte[] data, String fileEndung) throws IOException {
-        String directoryPath = "ressources/" + IP;
+
+        try {
+            String name;
+            Map<String, String> IPData = NameIPLogic.getNameAndIPFromFile();
+
+            if (IPData.containsKey(IP)) {
+                name = IPData.get(IP);
+            } else{
+                name = IP;
+            }
+
+            String directoryPath = "ressources/" + name ;
 
 
-        File directory = new File(directoryPath);
-        if (!directory.exists()) {
-            directory.mkdirs();
+            File directory = new File(directoryPath);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            // Speichern des Bildes im Verzeichnis mit aktueller Uhrzeit als Dateiname
+            LocalDateTime currentTime = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH-mm-ss");
+
+            String fileName = currentTime.format(formatter) + fileEndung;
+            String filePath = directoryPath + "/" + fileName;
+            File file = new File(filePath);
+
+            switch (fileEndung) {
+                case ".pdf":
+                    savePDF(data, file);
+                    break;
+                case ".png":
+                    saveImage(data, file);
+                    break;
+                case ".jpg":
+                    saveImage(data, file);
+                    break;
+                case ".jpeg":
+                    saveImage(data, file);
+                    break;
+            }
+            return filePath;
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
-
-        // Speichern des Bildes im Verzeichnis mit aktueller Uhrzeit als Dateiname
-        LocalDateTime currentTime = LocalDateTime.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH-mm-ss");
-
-        String fileName = currentTime.format(formatter) + fileEndung;
-        String filePath = directoryPath + "/" + fileName;
-        File file = new File(filePath);
-
-        switch (fileEndung) {
-            case ".pdf":
-                savePDF(data, file);
-                break;
-            case ".png":
-                saveImage(data, file);
-                break;
-            case ".jpg":
-                saveImage(data, file);
-                break;
-            case ".jpeg":
-                saveImage(data, file);
-                break;
-        }
-        return filePath;
     }
 
     private static void saveImage(byte[] imageData, File file) throws IOException {

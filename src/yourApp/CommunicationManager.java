@@ -22,18 +22,20 @@ public class CommunicationManager implements Runnable {
             System.out.println("Horche...Warte auf Client");
             ServerSocket serverSocket = new ServerSocket(portnumber);//Server-Seite
             System.out.println("Server auf Port:" + portnumber);
-            Socket s;
 
-            s = serverSocket.accept();//Verbindung wird akzeptiert
-            System.out.println("Verbindung aufgebaut");
+            while (!serverSocket.isClosed()) {
+                Socket s;
 
-            //Daten lesen aus Bytes und Deserialisieren
-            InputStream is = s.getInputStream();
-            PDUInterface received = ProtocolEngine.deserialisiere(is);
+                s = serverSocket.accept();//Verbindung wird akzeptiert
+                System.out.println("Verbindung aufgebaut");
 
-            //Ausgeben auf der Konsole
-            ConsoleOutputManager.printReceivedData(received);
+                //Daten lesen aus Bytes und Deserialisieren
+                InputStream is = s.getInputStream();
+                PDUInterface received = ProtocolEngine.deserialisiere(is);
 
+                //Ausgeben auf der Konsole
+                ConsoleOutputManager.printReceivedData(received);
+            }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
