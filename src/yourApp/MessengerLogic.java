@@ -4,27 +4,21 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.UnknownHostException;
 import java.util.Enumeration;
 
-
+/**
+ * Stellt die Logig hinter dem Messanger dar
+ */
 public class MessengerLogic {
 
-        static NameIPLogic nameIPLogic = new NameIPLogic();
-
-        private static String myIP = "unknown";
-
-    static {
-        try {
-            myIP = InetAddress.getLocalHost().getHostAddress();
-        } catch (UnknownHostException e) {
-            System.out.println("Deine IP-Adresse kann nicht ermittelt werden!");
-        }
-    }
+    //Die NameIPLogic der Klasse
+    static NameIPLogic nameIPLogic = new NameIPLogic();
+    //die eigene IP
+    private static String myIP = "unknown";
 
     /**
-     * Diese Methode weist einem Namen eine IP zu
-     * Diese werden in IP-Adressen.txt abegelegt
+     * Diese Methode weist einem Namen eine IP in der NameIPLogic zu
+     * Diese werden in IPData.txt abegelegt
      * @param parameter beinhaltet die benötigten Parameter
      *              [0] = Name der hinzugefügt werden soll
      *              [1] = IP die dem Namen zugewiesen werden soll
@@ -43,8 +37,9 @@ public class MessengerLogic {
     /**
      * Diese Methode sendet an eine angegebene Person eine Nachricht
      * @param parameter beinhaltet die benötigten Parameter
-     *              [0] = Name der IP an die die Nachricht gesendet werden soll
-     *              [1] = Nachricht die gesendet werden soll
+     *              [0] = Name der IP, an die die Nachricht gesendet werden soll
+ *                  [1] = Port an den gesendet werden soll
+     *              [2] = Nachricht die gesendet werden soll
      */
     public static void sendMessage (String[] parameter) throws IOException {
         try {
@@ -61,11 +56,13 @@ public class MessengerLogic {
             OutputStream outputStream = CommunicationManager.connectToServer(sendeAnIP, portnumber);
             ProtocolEngine.serialisiereMessage(outputStream, myMessage);
 
+            //Connection beenden
             outputStream.close();
 
             System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[1]);
 
-        } catch (NoIPBehindThisNameExeption e) {
+        //Wenn der Name unbekannt ist, wird diese Exception behandelt, indem folgendes auf der Konsole ausgegeben wird
+        } catch (NoIPBehindThisNameException e) {
             System.out.println("Unter diesem Namen ist keine IP gespeichert!");
         }
     }
@@ -74,7 +71,8 @@ public class MessengerLogic {
      * Diese Methode sendet an eine angegebene Person ein File
      * @param parameter beinhaltet die benötigten Parameter
      *              [0] = Name der IP an die die Nachricht gesendet werden soll
-     *              [1] = Filepath des Files das gesendet werden soll
+ *                  [1] = Portnummer, an die gesendet werden soll
+     *              [2] = Filepath des Files das gesendet werden soll
      */
     public static void sendFile(String[] parameter) {
         try {
@@ -92,11 +90,14 @@ public class MessengerLogic {
             OutputStream os = CommunicationManager.connectToServer(sendeAnIP, portnumber);
             ProtocolEngine.serialisiereFile(os, myFile);
 
+            //Connection beenden
             os.close();
 
             //Textausgabe
             System.out.println("An: " + parameter[0] + " (" + sendeAnIP + ") wurde gesendet: " + parameter[2]);
-        } catch (NoIPBehindThisNameExeption e) {
+
+        //Wenn der Name unbekannt ist, wird diese Exception behandelt, indem folgendes auf der Konsole ausgegeben wird
+        } catch (NoIPBehindThisNameException e) {
             System.out.println("Unter diesem Namen ist keine IP gespeichert!");
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -110,10 +111,12 @@ public class MessengerLogic {
         nameIPLogic.printAllEntrys();
     }
 
-
-    public static String printMyIP() { // getLocalIpAddress
+    /**
+     * ermittelt und gibt die eigene IP zurück
+     * @return myIP
+     */
+    public static String printMyIP() {
         try {
-
             Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces(); // ruft alle Netzwerkschnitstellen auf
 
             while(interfaces.hasMoreElements()) {

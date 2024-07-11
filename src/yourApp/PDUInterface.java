@@ -1,10 +1,13 @@
 package yourApp;
 
+/**
+ * Interface für alle PDUs, die mit unserem Chat verschickt werden wollen
+ */
 public interface PDUInterface {
 
     /**
      * gibt den Typ der PDU wieder
-     * @return String Typ der PDU
+     * @return String TYPE der PDU
      */
     String getType();
 
